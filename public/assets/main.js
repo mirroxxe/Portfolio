@@ -151,7 +151,6 @@
   /* ---------- gallery parallax ---------- */
 
   function setupParallax() {
-    if (reduce) return;
     const frames = [...document.querySelectorAll('.frame')];
     if (!frames.length) return;
     let ticking = false;
