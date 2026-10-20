@@ -764,16 +764,16 @@ a.row:focus-visible .row-name {
 }
 
 .frame--half {
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1388 / 615;
 }
 
 /* The image is taller than its frame so it can drift (parallax) without gaps. */
 .frame img {
   position: absolute;
   left: 0;
-  top: -6%;
+  top: -2%;
   width: 100%;
-  height: 112%;
+  height: 104%;
   max-width: none;
   object-fit: cover;
   transform: translate3d(0, var(--py, 0%), 0);
@@ -1420,8 +1420,8 @@ html.lb-lock {
   }
 
   /* wide mockups are cropped to a taller frame so they stay readable on phones */
-  .frame,
-  .frame--half {
+  /* only the home feature card is cropped taller on phones; case images keep their full frame */
+  .feature .frame {
     aspect-ratio: 4 / 3;
   }
 }

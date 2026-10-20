@@ -163,7 +163,7 @@
         const r = f.getBoundingClientRect();
         if (r.bottom < -100 || r.top > vh + 100) return;
         const p = Math.max(-1, Math.min(1, (r.top + r.height / 2 - vh / 2) / (vh / 2 + r.height / 2)));
-        f.style.setProperty('--py', `${(p * -4.5).toFixed(2)}%`);
+        f.style.setProperty('--py', `${(p * -1.8).toFixed(2)}%`);
       });
     };
     const request = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
