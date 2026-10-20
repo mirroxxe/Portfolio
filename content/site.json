@@ -1,0 +1,76 @@
+{
+  "name": "Volodymyr Chuchman",
+  "title": "Volodymyr Chuchman — UI/UX Designer & Developer",
+  "description": "Combining clean design with performance-focused development to create expressive digital experiences.",
+  "email": "chuchman002@gmail.com",
+  "linkedin": "https://www.linkedin.com/in/volodymyr-chuchman-810007368/",
+  "footerNote": "I create expressive, performance-focused websites by combining clean design with native development.",
+  "location": "Based in Ukraine · Available for Remote Work",
+  "home": {
+    "heroTitle": "Craftin’ Modern Webs A Studio of One.",
+    "heroLead": "Combining clean design with performance-focused development to create expressive digital experiences",
+    "projectsHeading": "Featured Projects",
+    "aboutButton": "Learn More About Me"
+  },
+  "about": {
+    "heading": "Crafting Digital Experiences",
+    "intro": "I am a passionate designer and developer from Lviv, Ukraine, who combines design and technology. My work is based on a belief in pure aesthetics and functionality.",
+    "experienceHeading": "Experience",
+    "experience": [
+      {
+        "period": "2025",
+        "role": "UI / UX Designer",
+        "place": "AI Startup Concept",
+        "text": [
+          "Designed a comprehensive landing page and interface for an artificial intelligence platform. Developed visual identity, responsive layouts, and interactive animations to enhance user engagement."
+        ]
+      },
+      {
+        "period": "2025 - 2026",
+        "role": "UI / UX Designer",
+        "place": "Personal Projects & Practice",
+        "text": [
+          "Worked on personal app and website projects using Figma. Motivated by solving real user problems through design and constantly improving my skills. Proficient in Figma, design systems, prototyping, and visual storytelling."
+        ]
+      }
+    ],
+    "educationHeading": "Education",
+    "education": [
+      {
+        "period": "2023 - 2026",
+        "role": "Bachelor Information Technology and Telecommunication",
+        "place": "Lviv Polytechnic National University",
+        "text": [
+          "Studying at the Faculty of Information Technology and Telecommunication Networks with a focus on computer networks, data transmission systems, and modern IT solutions.",
+          "Coursework includes network architecture, cybersecurity, programming, and the basics of UI/UX design."
+        ]
+      }
+    ],
+    "skillsHeading": "Skills",
+    "skills": [
+      "UI / UX Design",
+      "Prototyping",
+      "Design Systems",
+      "Figma",
+      "Landing Page Design",
+      "Mobile App Design",
+      "User Flows",
+      "Responsive Design",
+      "User Research"
+    ],
+    "button": "Let's Create Together"
+  },
+  "contact": {
+    "heading": "Let's Work Together",
+    "lead": "I'm always open to discussing new projects, creative ideas, or opportunities to be part of your vision.",
+    "emailLabel": "Email",
+    "linkedinLabel": "Linkedin",
+    "linkedinText": "Click to go to the link",
+    "button": "Learn More About Me"
+  },
+  "project": {
+    "previewButton": "Watch Preview",
+    "moreHeading": "More Cases",
+    "moreButton": "Watch More"
+  }
+}
