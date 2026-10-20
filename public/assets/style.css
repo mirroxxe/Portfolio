@@ -12,8 +12,8 @@
   --placeholder: #efefee;
   --btn-bg: #000;
   --btn-fg: #fff;
-  --header-bg: rgba(255, 255, 255, 0.5);
-  --header-bg-scrolled: rgba(255, 255, 255, 0.78);
+  --header-bg: rgba(255, 255, 255, 0.92);
+  --header-bg-scrolled: rgba(255, 255, 255, 0.96);
   --curtain: #000;
   --gutter: 40px;
   --gap: 50px;
@@ -33,8 +33,8 @@
   --placeholder: #17171a;
   --btn-bg: #f3f3f1;
   --btn-fg: #0c0c0d;
-  --header-bg: rgba(12, 12, 13, 0.55);
-  --header-bg-scrolled: rgba(12, 12, 13, 0.8);
+  --header-bg: rgba(12, 12, 13, 0.92);
+  --header-bg-scrolled: rgba(12, 12, 13, 0.96);
   --curtain: #1d1d20;
 }
 
@@ -51,8 +51,8 @@
     --placeholder: #17171a;
     --btn-bg: #f3f3f1;
     --btn-fg: #0c0c0d;
-    --header-bg: rgba(12, 12, 13, 0.55);
-    --header-bg-scrolled: rgba(12, 12, 13, 0.8);
+    --header-bg: rgba(12, 12, 13, 0.92);
+    --header-bg-scrolled: rgba(12, 12, 13, 0.96);
     --curtain: #1d1d20;
   }
 }
@@ -132,10 +132,8 @@ hr {
   position: sticky;
   top: 0;
   z-index: 10;
-  padding: 20px 0 10px;
-  background: var(--header-bg);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  padding: calc(20px + env(safe-area-inset-top, 0px)) 0 10px;
+  background: var(--bg);
   border-bottom: 1px solid transparent;
 }
 
@@ -1519,7 +1517,7 @@ html {
 }
 
 .site-header.is-scrolled {
-  background: var(--header-bg-scrolled);
+  background: var(--bg);
   border-bottom-color: var(--line);
 }
 
@@ -1633,15 +1631,37 @@ html {
   *::before,
   *::after {
     animation: none !important;
-    transition: none !important;
   }
 
-  .js [data-reveal],
+  /* Reduced motion keeps a gentle fade-in on scroll (no movement, no clipping),
+     so the page still feels alive on phones that have "Reduce motion" switched on. */
+  .js [data-reveal] {
+    transform: none !important;
+    clip-path: none !important;
+    transition: opacity 0.9s ease !important;
+  }
+
+  .js .rule[data-reveal] {
+    opacity: 0;
+  }
+
+  .js .rule[data-reveal].is-visible {
+    opacity: 1;
+  }
+
+  .js .frame[data-reveal] {
+    opacity: 0;
+  }
+
+  .js .frame[data-reveal].is-visible {
+    opacity: 1;
+  }
+
   .js .wi,
   .js .nav {
     opacity: 1 !important;
     transform: none !important;
-    clip-path: none !important;
+    transition: none !important;
   }
 
   .curtain,

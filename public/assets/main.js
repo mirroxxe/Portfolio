@@ -17,7 +17,7 @@
 
   function startReveals() {
     const items = [...document.querySelectorAll('[data-reveal]')];
-    if (reduce || !('IntersectionObserver' in window)) {
+    if (!('IntersectionObserver' in window)) {
       items.forEach((el) => el.classList.add('is-visible'));
       return;
     }
