@@ -1,6 +1,6 @@
 ---
 title: Assetly
-order: 3
+order: 4
 category: UI / UX Design
 type: D-Commerce Website
 year: 2025

@@ -1,6 +1,6 @@
 ---
 title: Healix
-order: 2
+order: 3
 category: UI / UX Design
 type: HealthTech
 year: 2025

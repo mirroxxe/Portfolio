@@ -1,6 +1,6 @@
 ---
 title: Spark
-order: 1
+order: 7
 category: UI / UX Design
 type: AI Website Builder
 year: 2025

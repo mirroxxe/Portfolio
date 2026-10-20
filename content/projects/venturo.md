@@ -1,6 +1,6 @@
 ---
 title: Venturo
-order: 5
+order: 6
 category: UI / UX Design
 type: Travel & Tourism Platform
 year: 2025
