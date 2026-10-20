@@ -106,6 +106,14 @@ function renderSections(md) {
 const arrow =
   '<svg class="arrow" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
+const arrowBig =
+  '<svg class="arrow-big" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17 17 7M8 7h9v9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+const iconSun =
+  '<svg class="icon-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+const iconMoon =
+  '<svg class="icon-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>';
+
 const button = (href, label, { external = false, reveal = true } = {}) =>
   `<a class="btn" href="${esc(href)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ''}${reveal ? ' data-reveal' : ''}><span>${esc(label)}</span>${arrow}</a>`;
 
@@ -122,7 +130,29 @@ function words(text, breakAfter = []) {
     .join(' ');
 }
 
-function layout({ title, description, path, active, body }) {
+function footerHtml(full) {
+  const year = new Date().getFullYear();
+  return `<footer class="site-footer">
+  <div class="wrap">
+${
+  full
+    ? `    <div class="footer-cta" data-reveal>
+      <p class="footer-label">${esc(site.footer.label)}</p>
+      <a class="footer-mail" href="mailto:${esc(site.email)}">${esc(site.email)}</a>
+      <p class="footer-note">${esc(site.footerNote)}</p>
+    </div>
+`
+    : ''
+}    <div class="footer-bar">
+      <span>© ${year} ${esc(site.name)}</span>
+      <span>${esc(site.location)}</span>
+      <span class="footer-links"><a href="${esc(site.linkedin)}" target="_blank" rel="noopener noreferrer">LinkedIn</a><a href="#top">Back to top ↑</a></span>
+    </div>
+  </div>
+</footer>`;
+}
+
+function layout({ title, description, path, active, body, footer = 'full' }) {
   const nav = (key, href, label) =>
     `<a class="nav-link${active === key ? ' is-active' : ''}" href="${href}"${active === key ? ' aria-current="page"' : ''}>${label}</a>`;
   return `<!doctype html>
@@ -130,6 +160,7 @@ function layout({ title, description, path, active, body }) {
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(description)}">
 <meta property="og:title" content="${esc(title)}">
@@ -141,25 +172,36 @@ function layout({ title, description, path, active, body }) {
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap">
 <link rel="stylesheet" href="/assets/style.css">
 <script>
-  document.documentElement.classList.add('js');
-  try { if (sessionStorage.getItem('curtain')) document.documentElement.classList.add('curtain-in'); } catch (e) {}
+  (function () {
+    var d = document.documentElement, t = null;
+    d.classList.add('js');
+    try { t = localStorage.getItem('theme'); } catch (e) {}
+    if (t !== 'light' && t !== 'dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    d.setAttribute('data-theme', t);
+    try { if (sessionStorage.getItem('curtain')) d.classList.add('curtain-in'); } catch (e) {}
+  })();
 </script>
 <script src="/assets/main.js" defer></script>
 </head>
-<body>
+<body id="top">
 <div class="curtain" aria-hidden="true"></div>
 <header class="site-header">
   <div class="wrap">
     <nav class="nav" aria-label="Main">
       ${nav('projects', '/', 'Projects')}
       ${nav('about', '/about/', 'About')}
-      <a class="btn nav-contact" href="/contact/"><span>Contact</span>${arrow}</a>
+      <div class="nav-end">
+        <span class="status" title="${esc(site.status)}"><i class="status-dot" aria-hidden="true"></i><span class="status-text">${esc(site.status)}</span></span>
+        <button class="theme-toggle" type="button" aria-label="Switch colour theme">${iconSun}${iconMoon}</button>
+        <a class="btn nav-contact" href="/contact/"><span>Contact</span>${arrow}</a>
+      </div>
     </nav>
   </div>
 </header>
 <main class="wrap stack" data-path="${esc(path)}">
 ${body}
 </main>
+${footerHtml(footer === 'full')}
 </body>
 </html>
 `;
@@ -184,6 +226,9 @@ const projects = readdirSync(projectsDir)
       summary: data.summary || '',
       page: data.page !== false,
       previewUrl: data.previewUrl || '',
+      role: data.role || '',
+      tools: data.tools || '',
+      duration: data.duration || '',
       cover: data.cover || images[0] || '',
       images,
       body,
@@ -203,23 +248,51 @@ function homePage() {
   const rows = projects
     .map((p, i) => {
       const preview = p.cover ? ` data-preview="${esc(useImage(p.cover))}"` : '';
-      const inner = `<span class="row-name">${esc(p.title)}</span><span class="row-cat">${esc(p.category)}</span><span class="row-num">${pad2(i + 1)}</span>`;
+      const sub = [p.type || p.category, p.year].filter(Boolean).join(' · ');
+      const inner = `<span class="row-name">${esc(p.title)}</span><span class="row-cat">${esc(sub)}</span><span class="row-num">${pad2(i + 1)}</span>`;
       return p.page
         ? `<li data-reveal><a class="row" href="/projects/${p.slug}/"${preview}>${inner}</a></li>`
         : `<li data-reveal><div class="row row--static"${preview}>${inner}</div></li>`;
     })
     .join('\n');
+
+  const feat =
+    projects.find((p) => p.slug === site.home.featured && p.page && p.cover) ||
+    projects.find((p) => p.page && p.cover);
+  const featHtml = feat
+    ? `<a class="feature" href="/projects/${feat.slug}/" aria-label="${esc(feat.title)}">
+  <figure class="frame" data-reveal="clip">
+    <img src="${esc(useImage(feat.cover))}" alt="${esc(feat.title)} — featured case" width="1388" height="615" fetchpriority="high">
+    <figcaption class="feature-cap">
+      <span class="feature-text">
+        <span class="feature-label">${esc(site.home.featuredLabel)}</span>
+        <span class="feature-title">${esc(feat.title)}</span>
+        <span class="feature-meta">${esc([feat.type || feat.category, feat.year].filter(Boolean).join(' · '))}</span>
+      </span>
+      <span class="feature-go">${arrowBig}</span>
+    </figcaption>
+  </figure>
+</a>`
+    : '';
+
+  const group = (hidden) =>
+    `<ul class="marquee-group"${hidden ? ' aria-hidden="true"' : ''}>${site.about.skills.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
+  const marquee = `<div class="marquee" role="group" aria-label="Skills" data-reveal>
+  <div class="marquee-track">${[0, 1, 2, 3, 4, 5].map((n) => group(n > 0)).join('')}</div>
+</div>`;
+
   const body = `
 <section class="hero">
   <h1 class="h1">${words(site.home.heroTitle)}</h1>
   <p class="lead" data-reveal>${esc(site.home.heroLead)}</p>
 </section>
+${featHtml}
+${marquee}
 <h2 class="h2" id="projects" data-reveal>${esc(site.home.projectsHeading)}</h2>
 <ul class="project-list">
 ${rows}
 </ul>
 <div class="cta" data-reveal>
-  <p class="fine">${esc(site.footerNote)}</p>
   ${button('/about/', site.home.aboutButton, { reveal: false })}
 </div>`;
   return layout({ title: site.title, description: site.description, path: '/', active: 'projects', body });
@@ -252,7 +325,6 @@ ${a.education.map(entryHtml).join('\n')}
 ${a.skills.map((s) => `<li data-reveal>${esc(s)}</li>`).join('\n')}
 </ul>
 <div class="cta" data-reveal>
-  <p class="fine">${esc(site.location)}</p>
   ${button('/contact/', a.button, { reveal: false })}
 </div>`;
   return layout({
@@ -284,7 +356,6 @@ function contactPage() {
   </div>
   <hr class="rule" data-reveal="line">
   <div class="cta" data-reveal>
-    <p class="fine">${esc(site.location)}</p>
     ${button('/about/', c.button, { reveal: false })}
   </div>
 </div>`;
@@ -293,12 +364,19 @@ function contactPage() {
     description: c.lead,
     path: '/contact/',
     active: 'contact',
+    footer: 'bar',
     body,
   });
 }
 
 function projectPage(p) {
-  const meta = [['Type', p.type], ['Year', p.year]].filter(([, v]) => v);
+  const meta = [
+    ['Type', p.type],
+    ['Year', p.year],
+    ['Role', p.role || site.project.defaultRole],
+    ['Tools', p.tools || site.project.defaultTools],
+    ['Duration', p.duration],
+  ].filter(([, v]) => v);
   const sections = renderSections(p.body);
   const idx = projects.findIndex((x) => x.slug === p.slug);
   const more = [];
@@ -307,15 +385,32 @@ function projectPage(p) {
     if (q.cover) more.push(q);
   }
 
-  const gallery = p.images.length
-    ? `<div class="gallery">
-${p.images
-  .map(
-    (src, i) =>
-      `  <figure class="frame" data-reveal="clip"><img src="${esc(useImage(src))}" alt="${esc(p.title)} — project image ${i + 1}" width="1388" height="615"${i ? ' loading="lazy"' : ''}></figure>`,
-  )
-  .join('\n')}
-</div>`
+  // Rhythm: one wide frame, then two side by side, then wide again, and so on.
+  const fig = (src, i, half) =>
+    `<figure class="frame${half ? ' frame--half' : ''}" data-reveal="clip"><img src="${esc(useImage(src))}" alt="${esc(p.title)} — project image ${i + 1}" width="1388" height="615"${i ? ' loading="lazy"' : ''}></figure>`;
+  const galleryParts = [];
+  for (let i = 0, pair = false; i < p.images.length; pair = !pair) {
+    if (pair && i + 1 < p.images.length) {
+      galleryParts.push(`  <div class="gallery-pair">${fig(p.images[i], i, true)}${fig(p.images[i + 1], i + 1, true)}</div>`);
+      i += 2;
+    } else {
+      galleryParts.push(`  ${fig(p.images[i], i, false)}`);
+      i += 1;
+    }
+  }
+  const gallery = galleryParts.length ? `<div class="gallery">\n${galleryParts.join('\n')}\n</div>` : '';
+
+  let nextP = null;
+  for (let i = 1; i < projects.length && !nextP; i++) {
+    const q = projects[(idx + i) % projects.length];
+    if (q.page) nextP = q;
+  }
+  const nextHtml = nextP
+    ? `<a class="next" href="/projects/${nextP.slug}/" data-reveal>
+  <span class="next-label">${esc(site.project.nextLabel)}</span>
+  <span class="next-row"><span class="next-title">${esc(nextP.title)}</span>${arrowBig}</span>
+  <span class="next-meta">${esc([nextP.type || nextP.category, nextP.year].filter(Boolean).join(' · '))}</span>
+</a>`
     : '';
 
   const moreHtml = more.length
@@ -351,8 +446,8 @@ ${sections
       `<section class="case" data-reveal>${s.title ? `<h2 class="h2 h2--section">${esc(s.title)}</h2>` : ''}<div class="prose">${s.html}</div></section>`,
   )
   .join('\n')}
-${moreHtml}
-<p class="fine" data-reveal>${esc(site.footerNote)}</p>`;
+${nextHtml}
+${moreHtml}`;
 
   return layout({
     title: `${p.title} — ${site.name}`,
@@ -368,7 +463,7 @@ function notFoundPage() {
 <h1 class="h1">${words('Page not found')}</h1>
 <p class="lead lead--left" data-reveal>The page you are looking for does not exist.</p>
 <div class="cta" data-reveal>${button('/', 'Back to projects', { reveal: false })}</div>`;
-  return layout({ title: `Not found — ${site.name}`, description: site.description, path: '/404', active: null, body });
+  return layout({ title: `Not found — ${site.name}`, description: site.description, path: '/404', active: null, body, footer: 'bar' });
 }
 
 /* ---------- write ---------- */

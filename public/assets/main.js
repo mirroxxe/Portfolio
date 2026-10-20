@@ -27,8 +27,12 @@
           .filter((e) => e.isIntersecting)
           .sort((a, b) => (a.target.compareDocumentPosition(b.target) & 4 ? -1 : 1));
         visible.forEach((entry, i) => {
-          entry.target.style.transitionDelay = `${Math.min(i, 7) * 90}ms`;
-          entry.target.classList.add('is-visible');
+          const delay = Math.min(i, 7) * 90;
+          const el = entry.target;
+          el.style.transitionDelay = `${delay}ms`;
+          el.classList.add('is-visible');
+          // drop the stagger afterwards so hover transitions respond instantly
+          setTimeout(() => { el.style.transitionDelay = ''; }, delay + 1400);
           io.unobserve(entry.target);
         });
       },
@@ -168,9 +172,54 @@
     update();
   }
 
+  /* ---------- colour theme ---------- */
+
+  function setupTheme() {
+    const btn = document.querySelector('.theme-toggle');
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const stored = () => { try { return localStorage.getItem('theme'); } catch (e) { return null; } };
+    const apply = (t) => {
+      root.setAttribute('data-theme', t);
+      if (btn) btn.setAttribute('aria-pressed', String(t === 'dark'));
+    };
+    apply(root.getAttribute('data-theme') || (mq.matches ? 'dark' : 'light'));
+
+    if (btn) {
+      btn.addEventListener('click', () => {
+        const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        try { localStorage.setItem('theme', next); } catch (e) {}
+        // cross-fade the whole page where the browser supports it
+        if (document.startViewTransition && !reduce) document.startViewTransition(() => apply(next));
+        else apply(next);
+      });
+    }
+    // follow the system setting until the visitor picks a theme themselves
+    const follow = (e) => { if (!stored()) apply(e.matches ? 'dark' : 'light'); };
+    if (mq.addEventListener) mq.addEventListener('change', follow);
+  }
+
+  /* ---------- magnetic buttons ---------- */
+
+  function setupMagnetic() {
+    if (reduce || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    document.querySelectorAll('.btn').forEach((b) => {
+      b.addEventListener('mousemove', (e) => {
+        const r = b.getBoundingClientRect();
+        b.style.setProperty('--mx', `${((e.clientX - (r.left + r.width / 2)) * 0.22).toFixed(1)}px`);
+        b.style.setProperty('--my', `${((e.clientY - (r.top + r.height / 2)) * 0.3).toFixed(1)}px`);
+      });
+      b.addEventListener('mouseleave', () => {
+        b.style.removeProperty('--mx');
+        b.style.removeProperty('--my');
+      });
+    });
+  }
+
   /* ---------- boot ---------- */
 
   const boot = () => {
+    setupTheme();
+    setupMagnetic();
     setupHeader();
     setupTransitions();
     setupPreview();
