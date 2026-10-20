@@ -179,51 +179,6 @@ hr {
   margin-left: auto;
 }
 
-/* "Available for work" pill with a pulsing dot */
-.status {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px 14px 8px 12px;
-  border: 1px solid var(--line);
-  border-radius: 100px;
-  color: var(--muted);
-  font-size: 14px;
-  font-weight: 500;
-  line-height: normal;
-  white-space: nowrap;
-}
-
-.status-dot {
-  position: relative;
-  flex: none;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #22c55e;
-}
-
-.status-dot::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 50%;
-  background: #22c55e;
-  animation: pulse 2.2s ease-out infinite;
-}
-
-@keyframes pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  75%,
-  100% {
-    transform: scale(3.4);
-    opacity: 0;
-  }
-}
-
 /* theme toggle */
 .theme-toggle {
   position: relative;
@@ -1373,25 +1328,6 @@ html.lb-lock {
 }
 
 /* ---------- mobile ---------- */
-
-@media (max-width: 700px) {
-  .nav {
-    gap: 22px;
-  }
-
-  .nav-end {
-    gap: 10px;
-  }
-
-  /* the pill shrinks to its pulsing dot */
-  .status {
-    padding: 11px;
-  }
-
-  .status-text {
-    display: none;
-  }
-}
 
 @media (max-width: 600px) {
   :root {

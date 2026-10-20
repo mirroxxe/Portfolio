@@ -225,7 +225,6 @@ function layout({ title, description, path, active, body, footer = 'full' }) {
       ${nav('projects', '/', 'Projects')}
       ${nav('about', '/about/', 'About')}
       <div class="nav-end">
-        <span class="status" title="${esc(site.status)}"><i class="status-dot" aria-hidden="true"></i><span class="status-text">${esc(site.status)}</span></span>
         <button class="theme-toggle" type="button" aria-label="Switch colour theme">${iconSun}${iconMoon}</button>
         <a class="btn nav-contact" href="/contact/"><span>Contact</span>${arrow}</a>
       </div>
