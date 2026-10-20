@@ -4,6 +4,7 @@ import {
   readFileSync, writeFileSync, mkdirSync, readdirSync, cpSync, rmSync, existsSync,
 } from 'node:fs';
 import { join, dirname } from 'node:path';
+import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -273,7 +274,14 @@ const projects = readdirSync(projectsDir)
 
 const usedImages = new Set();
 const useImage = (p) => {
-  if (p) usedImages.add(p);
+  if (!p) return p;
+  usedImages.add(p);
+  // Cache-bust by content: images are served with a 1-year immutable cache, so a replaced file
+  // must get a new URL or visitors keep the old one.
+  const file = join(root, 'public', p);
+  if (!/^https?:/.test(p) && existsSync(file)) {
+    return p + '?v=' + createHash('md5').update(readFileSync(file)).digest('hex').slice(0, 8);
+  }
   return p;
 };
 
