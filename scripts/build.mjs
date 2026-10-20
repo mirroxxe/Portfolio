@@ -58,7 +58,7 @@ function parseFrontmatter(src) {
   }
   // Empty `key:` that never got list items is just an empty value.
   for (const k of Object.keys(data)) {
-    if (Array.isArray(data[k]) && data[k].length === 0 && !['images'].includes(k)) data[k] = '';
+    if (Array.isArray(data[k]) && data[k].length === 0 && k !== 'images') data[k] = '';
   }
   return { data, body: m[2] };
 }
@@ -106,8 +106,21 @@ function renderSections(md) {
 const arrow =
   '<svg class="arrow" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
-const button = (href, label, external = false) =>
-  `<a class="btn" href="${esc(href)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ''}><span>${esc(label)}</span>${arrow}</a>`;
+const button = (href, label, { external = false, reveal = true } = {}) =>
+  `<a class="btn" href="${esc(href)}"${external ? ' target="_blank" rel="noopener noreferrer"' : ''}${reveal ? ' data-reveal' : ''}><span>${esc(label)}</span>${arrow}</a>`;
+
+// Wraps every word in a mask so headings can slide up word by word.
+// `breakAfter` lists words that should be followed by a line break.
+function words(text, breakAfter = []) {
+  let i = 0;
+  return text
+    .split(' ')
+    .map((w) => {
+      const html = `<span class="w"><span class="wi" style="--i:${i++}">${esc(w)}</span></span>`;
+      return breakAfter.includes(w) ? `${html}<br>` : html;
+    })
+    .join(' ');
+}
 
 function layout({ title, description, path, active, body }) {
   const nav = (key, href, label) =>
@@ -127,8 +140,14 @@ function layout({ title, description, path, active, body }) {
 <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700&display=swap">
 <link rel="stylesheet" href="/assets/style.css">
+<script>
+  document.documentElement.classList.add('js');
+  try { if (sessionStorage.getItem('curtain')) document.documentElement.classList.add('curtain-in'); } catch (e) {}
+</script>
+<script src="/assets/main.js" defer></script>
 </head>
 <body>
+<div class="curtain" aria-hidden="true"></div>
 <header class="site-header">
   <div class="wrap">
     <nav class="nav" aria-label="Main">
@@ -183,30 +202,31 @@ const useImage = (p) => {
 function homePage() {
   const rows = projects
     .map((p, i) => {
+      const preview = p.cover ? ` data-preview="${esc(useImage(p.cover))}"` : '';
       const inner = `<span class="row-name">${esc(p.title)}</span><span class="row-cat">${esc(p.category)}</span><span class="row-num">${pad2(i + 1)}</span>`;
       return p.page
-        ? `<li><a class="row" href="/projects/${p.slug}/">${inner}</a></li>`
-        : `<li><div class="row row--static">${inner}</div></li>`;
+        ? `<li data-reveal><a class="row" href="/projects/${p.slug}/"${preview}>${inner}</a></li>`
+        : `<li data-reveal><div class="row row--static"${preview}>${inner}</div></li>`;
     })
     .join('\n');
   const body = `
 <section class="hero">
-  <h1 class="h1">${esc(site.home.heroTitle)}</h1>
-  <p class="lead">${esc(site.home.heroLead)}</p>
+  <h1 class="h1">${words(site.home.heroTitle)}</h1>
+  <p class="lead" data-reveal>${esc(site.home.heroLead)}</p>
 </section>
-<h2 class="h2" id="projects">${esc(site.home.projectsHeading)}</h2>
+<h2 class="h2" id="projects" data-reveal>${esc(site.home.projectsHeading)}</h2>
 <ul class="project-list">
 ${rows}
 </ul>
-<div class="cta">
+<div class="cta" data-reveal>
   <p class="fine">${esc(site.footerNote)}</p>
-  ${button('/about/', site.home.aboutButton)}
+  ${button('/about/', site.home.aboutButton, { reveal: false })}
 </div>`;
   return layout({ title: site.title, description: site.description, path: '/', active: 'projects', body });
 }
 
 function entryHtml(e) {
-  return `<div class="entry">
+  return `<div class="entry" data-reveal>
   <p class="entry-period">${esc(e.period)}</p>
   <p class="entry-role"><span class="entry-title">${esc(e.role)}</span><span class="entry-place">${esc(e.place)}</span></p>
   <div class="entry-text">${(e.text || []).map((t) => `<p>${esc(t)}</p>`).join('')}</div>
@@ -216,24 +236,24 @@ function entryHtml(e) {
 function aboutPage() {
   const a = site.about;
   const body = `
-<h1 class="h1">${esc(a.heading).replace('Digital ', 'Digital<br>')}</h1>
-<p class="lead lead--left">${esc(a.intro)}</p>
-<h2 class="h2">${esc(a.experienceHeading)}</h2>
+<h1 class="h1">${words(a.heading, ['Digital'])}</h1>
+<p class="lead lead--left" data-reveal>${esc(a.intro)}</p>
+<h2 class="h2" data-reveal>${esc(a.experienceHeading)}</h2>
 <div class="timeline">
 ${a.experience.map(entryHtml).join('\n')}
 </div>
-<h2 class="h2">${esc(a.educationHeading)}</h2>
+<h2 class="h2" data-reveal>${esc(a.educationHeading)}</h2>
 <div class="timeline">
 ${a.education.map(entryHtml).join('\n')}
 </div>
-<h2 class="h2">${esc(a.skillsHeading)}</h2>
-<hr class="rule">
+<h2 class="h2" data-reveal>${esc(a.skillsHeading)}</h2>
+<hr class="rule" data-reveal="line">
 <ul class="tags">
-${a.skills.map((s) => `<li>${esc(s)}</li>`).join('\n')}
+${a.skills.map((s) => `<li data-reveal>${esc(s)}</li>`).join('\n')}
 </ul>
-<div class="cta">
+<div class="cta" data-reveal>
   <p class="fine">${esc(site.location)}</p>
-  ${button('/contact/', a.button)}
+  ${button('/contact/', a.button, { reveal: false })}
 </div>`;
   return layout({
     title: `About — ${site.name}`,
@@ -247,25 +267,25 @@ ${a.skills.map((s) => `<li>${esc(s)}</li>`).join('\n')}
 function contactPage() {
   const c = site.contact;
   const body = `
-<h1 class="h1">${esc(c.heading)}</h1>
-<p class="lead lead--left">${esc(c.lead)}</p>
+<h1 class="h1">${words(c.heading)}</h1>
+<p class="lead lead--left" data-reveal>${esc(c.lead)}</p>
 <div class="contact-list">
-  <hr class="rule rule--strong">
-  <div class="contact-row">
+  <hr class="rule rule--strong" data-reveal="line">
+  <div class="contact-row" data-reveal>
     <span class="contact-label">${esc(c.emailLabel)}</span>
     <span class="contact-sep" aria-hidden="true"></span>
     <a class="contact-value" href="mailto:${esc(site.email)}">${esc(site.email)}</a>
   </div>
-  <hr class="rule">
-  <div class="contact-row">
+  <hr class="rule" data-reveal="line">
+  <div class="contact-row" data-reveal>
     <span class="contact-label">${esc(c.linkedinLabel)}</span>
     <span class="contact-sep" aria-hidden="true"></span>
     <a class="contact-value contact-value--link" href="${esc(site.linkedin)}" target="_blank" rel="noopener noreferrer">${esc(c.linkedinText)}</a>
   </div>
-  <hr class="rule">
-  <div class="cta">
+  <hr class="rule" data-reveal="line">
+  <div class="cta" data-reveal>
     <p class="fine">${esc(site.location)}</p>
-    ${button('/about/', c.button)}
+    ${button('/about/', c.button, { reveal: false })}
   </div>
 </div>`;
   return layout({
@@ -292,21 +312,21 @@ function projectPage(p) {
 ${p.images
   .map(
     (src, i) =>
-      `  <img src="${esc(useImage(src))}" alt="${esc(p.title)} — project image ${i + 1}" width="1388" height="615"${i ? ' loading="lazy"' : ''}>`,
+      `  <figure class="frame" data-reveal="clip"><img src="${esc(useImage(src))}" alt="${esc(p.title)} — project image ${i + 1}" width="1388" height="615"${i ? ' loading="lazy"' : ''}></figure>`,
   )
   .join('\n')}
 </div>`
     : '';
 
   const moreHtml = more.length
-    ? `<h2 class="h2 h2--section">${esc(site.project.moreHeading)}</h2>
+    ? `<h2 class="h2 h2--section" data-reveal>${esc(site.project.moreHeading)}</h2>
 <div class="more">
 ${more
   .map((q) => {
-    const img = `<img src="${esc(useImage(q.cover))}" alt="${esc(q.title)}" width="456" height="607" loading="lazy">`;
+    const inner = `<img src="${esc(useImage(q.cover))}" alt="${esc(q.title)}" width="456" height="607" loading="lazy"><span class="more-title">${esc(q.title)}</span>`;
     return q.page
-      ? `  <a class="more-card" href="/projects/${q.slug}/" aria-label="${esc(q.title)}">${img}</a>`
-      : `  <div class="more-card">${img}</div>`;
+      ? `  <a class="more-card" href="/projects/${q.slug}/" aria-label="${esc(q.title)}" data-reveal>${inner}</a>`
+      : `  <div class="more-card" data-reveal>${inner}</div>`;
   })
   .join('\n')}
 </div>
@@ -314,25 +334,25 @@ ${button('/#projects', site.project.moreButton)}`
     : '';
 
   const body = `
-<h1 class="h1 h1--page">${esc(p.title)}</h1>
-${p.summary ? `<p class="lead lead--left">${esc(p.summary)}</p>` : ''}
+<h1 class="h1 h1--page">${words(p.title)}</h1>
+${p.summary ? `<p class="lead lead--left" data-reveal>${esc(p.summary)}</p>` : ''}
 ${
   meta.length
     ? `<dl class="meta">
-${meta.map(([k, v]) => `  <div class="meta-row"><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('\n')}
+${meta.map(([k, v]) => `  <div class="meta-row" data-reveal><dt>${k}</dt><dd>${esc(v)}</dd></div>`).join('\n')}
 </dl>`
     : ''
 }
-${p.previewUrl ? button(p.previewUrl, site.project.previewButton, true) : ''}
+${p.previewUrl ? button(p.previewUrl, site.project.previewButton, { external: true }) : ''}
 ${gallery}
 ${sections
   .map(
     (s) =>
-      `<section class="case">${s.title ? `<h2 class="h2 h2--section">${esc(s.title)}</h2>` : ''}<div class="prose">${s.html}</div></section>`,
+      `<section class="case" data-reveal>${s.title ? `<h2 class="h2 h2--section">${esc(s.title)}</h2>` : ''}<div class="prose">${s.html}</div></section>`,
   )
   .join('\n')}
 ${moreHtml}
-<p class="fine">${esc(site.footerNote)}</p>`;
+<p class="fine" data-reveal>${esc(site.footerNote)}</p>`;
 
   return layout({
     title: `${p.title} — ${site.name}`,
@@ -345,9 +365,9 @@ ${moreHtml}
 
 function notFoundPage() {
   const body = `
-<h1 class="h1">Page not found</h1>
-<p class="lead lead--left">The page you are looking for does not exist.</p>
-<div class="cta">${button('/', 'Back to projects')}</div>`;
+<h1 class="h1">${words('Page not found')}</h1>
+<p class="lead lead--left" data-reveal>The page you are looking for does not exist.</p>
+<div class="cta" data-reveal>${button('/', 'Back to projects', { reveal: false })}</div>`;
   return layout({ title: `Not found — ${site.name}`, description: site.description, path: '/404', active: null, body });
 }
 

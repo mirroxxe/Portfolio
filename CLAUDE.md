@@ -6,9 +6,11 @@ Static portfolio site, zero npm dependencies. `node scripts/build.mjs` reads `co
 
 1. Create `content/projects/<slug>.md` (copy `healix.md` as the template). Frontmatter: `title`, `order` (position in the home list; numbers 01.. are generated from it), `category`, `type`, `year`, `summary`, `page` (false = listed on home but no case study page), `previewUrl` (optional "Watch Preview" button), `cover` (image for the "More Cases" cards; defaults to the first gallery image), `images` (gallery list).
 2. Body is markdown: each `## Heading` becomes a case-study section. Supported: paragraphs, `- ` lists, `**bold**`, `[links](https://…)`.
-3. Images go to `public/images/projects/<slug>/` and are referenced as `/images/projects/<slug>/01.png`.
+3. Images go to `public/images/projects/<slug>/` and are referenced as `/images/projects/<slug>/01.webp`. Figma PNG exports should be converted to WebP (Pillow, quality ~84, 1388px wide is enough) before committing.
 4. Run `node scripts/build.mjs`. It warns about every referenced image that is missing from `public/`.
 5. Commit and push. The host rebuilds automatically.
+
+Motion: `public/assets/main.js` + the "Motion" section at the bottom of `style.css`. Elements animate in when they carry `data-reveal` (set in the templates in `scripts/build.mjs`); headings use the `words()` helper. Page transitions use the `.curtain` overlay. Everything is gated on `html.js` and `prefers-reduced-motion`.
 
 Site-wide copy (hero, about, experience, skills, contact, button labels) lives in `content/site.json`. Styles are in `public/assets/style.css`. Page templates are in `scripts/build.mjs`.
 

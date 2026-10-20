@@ -6,12 +6,12 @@ type: E-Commerce Website
 year: 2025
 summary: Designing a minimalist luxury e-commerce experience.
 images:
-  - /images/projects/balenciaga/01.png
-  - /images/projects/balenciaga/02.png
-  - /images/projects/balenciaga/03.png
-  - /images/projects/balenciaga/04.png
-  - /images/projects/balenciaga/05.png
-  - /images/projects/balenciaga/06.png
+  - /images/projects/balenciaga/01.webp
+  - /images/projects/balenciaga/02.webp
+  - /images/projects/balenciaga/03.webp
+  - /images/projects/balenciaga/04.webp
+  - /images/projects/balenciaga/05.webp
+  - /images/projects/balenciaga/06.webp
 ---
 
 ## Balenciaga — The Digital Runway Experience

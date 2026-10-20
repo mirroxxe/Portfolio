@@ -5,14 +5,13 @@ category: UI / UX Design
 type: HealthTech
 year: 2025
 summary: Designing a minimalist healthcare booking experience.
-cover: /images/projects/healix/cover.png
 images:
-  - /images/projects/healix/01.png
-  - /images/projects/healix/02.png
-  - /images/projects/healix/03.png
-  - /images/projects/healix/04.png
-  - /images/projects/healix/05.png
-  - /images/projects/healix/06.png
+  - /images/projects/healix/01.webp
+  - /images/projects/healix/02.webp
+  - /images/projects/healix/03.webp
+  - /images/projects/healix/04.webp
+  - /images/projects/healix/05.webp
+  - /images/projects/healix/06.webp
 ---
 
 ## Healix — Healthcare in Your Pocket

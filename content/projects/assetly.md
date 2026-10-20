@@ -5,14 +5,14 @@ category: UI / UX Design
 type: D-Commerce Website
 year: 2025
 summary: Designing a premium font marketplace and licensing experience.
-cover: /images/projects/assetly/01.png
+cover: /images/projects/assetly/01.webp
 images:
-  - /images/projects/assetly/01.png
-  - /images/projects/assetly/02.png
-  - /images/projects/assetly/03.png
-  - /images/projects/assetly/04.png
-  - /images/projects/assetly/05.png
-  - /images/projects/assetly/06.png
+  - /images/projects/assetly/01.webp
+  - /images/projects/assetly/02.webp
+  - /images/projects/assetly/03.webp
+  - /images/projects/assetly/04.webp
+  - /images/projects/assetly/05.webp
+  - /images/projects/assetly/06.webp
 ---
 
 ## Assetly — Where Fonts Become Art
