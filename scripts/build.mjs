@@ -262,6 +262,8 @@ const projects = readdirSync(projectsDir)
       role: data.role || '',
       tools: data.tools || '',
       duration: data.duration || '',
+      ratio: data.ratio || '',
+      featureRatio: data.featureRatio || '',
       cover: data.cover || images[0] || '',
       images,
       body,
@@ -294,7 +296,7 @@ function homePage() {
     projects.find((p) => p.page && p.cover);
   const featHtml = feat
     ? `<a class="feature" href="/projects/${feat.slug}/" aria-label="${esc(feat.title)}">
-  <figure class="frame" data-reveal="clip">
+  <figure class="frame" data-reveal="clip"${feat.featureRatio ? ` style="--ar:${esc(feat.featureRatio)}"` : ''}>
     <img src="${esc(useImage(feat.cover))}" alt="${esc(feat.title)} — featured case" width="1388" height="615" fetchpriority="high">
     <figcaption class="feature-cap">
       <span class="feature-text">
@@ -422,7 +424,7 @@ function projectPage(p) {
   const zoomIcon =
     '<span class="frame-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
   const fig = (src, i, half) =>
-    `<figure class="frame${half ? ' frame--half' : ''}" data-reveal="clip">${zoomIcon}<img src="${esc(useImage(src))}" alt="${esc(p.title)} — project image ${i + 1}" width="1388" height="615"${i ? ' loading="lazy"' : ''}></figure>`;
+    `<figure class="frame${half ? ' frame--half' : ''}" data-reveal="clip"${p.ratio ? ` style="--ar:${esc(p.ratio)}"` : ''}>${zoomIcon}<img src="${esc(useImage(src))}" alt="${esc(p.title)} — project image ${i + 1}" width="1388" height="615"${i ? ' loading="lazy"' : ''}></figure>`;
   const galleryParts = [];
   for (let i = 0, pair = false; i < p.images.length; pair = !pair) {
     if (pair && i + 1 < p.images.length) {

@@ -6,6 +6,8 @@ type: Mobile Application (iOS / Android)
 year: 2026
 summary: Designing an AI-driven, real-time translated messaging experience.
 cover: /images/projects/mova/01.webp
+ratio: 10 / 7
+featureRatio: 16 / 9
 images:
   - /images/projects/mova/01.webp
   - /images/projects/mova/02.webp

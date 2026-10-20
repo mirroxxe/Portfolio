@@ -758,13 +758,13 @@ a.row:focus-visible .row-name {
   position: relative;
   margin: 0;
   overflow: hidden;
-  aspect-ratio: 1388 / 615;
+  aspect-ratio: var(--ar, 1388 / 615);
   background: var(--placeholder);
   border-radius: 6px;
 }
 
 .frame--half {
-  aspect-ratio: 1388 / 615;
+  aspect-ratio: var(--ar, 1388 / 615);
 }
 
 /* The image is taller than its frame so it can drift (parallax) without gaps. */
