@@ -69,16 +69,50 @@ function inline(text) {
     .replace(/\[([^\]]+)\]\(((?:https?:\/\/|\/|mailto:)[^)\s]+)\)/g, '<a href="$2">$1</a>');
 }
 
+// "**Label:** text" or "**Label**: text" -> { label, rest }, otherwise null.
+function splitLabel(text) {
+  const m = text.match(/^\*\*(.+?)\*\*(:?)\s*(.*)$/);
+  if (!m) return null;
+  const labelHasColon = /:\s*$/.test(m[1]);
+  if (!labelHasColon && m[2] !== ':') return null;
+  return { label: m[1].replace(/:\s*$/, '').trim(), rest: m[3] };
+}
+
 // Markdown subset: paragraphs, "- " lists, **bold**, [links](url).
-function renderBlocks(md) {
+// Case-study conventions get richer markup:
+//   - the first plain paragraph of the first section becomes a large lead
+//   - "**Label:** text" paragraphs become labelled rows
+//   - lists whose items all start with a bold label become numbered cards
+function renderBlocks(md, lead = false) {
   const out = [];
+  let leadPending = lead;
   for (const block of md.trim().split(/\n\s*\n/)) {
     const lines = block.split('\n').map((l) => l.trimEnd()).filter(Boolean);
     if (!lines.length) continue;
     if (lines.every((l) => /^\s*[-*]\s+/.test(l))) {
-      out.push(`<ul>${lines.map((l) => `<li>${inline(l.replace(/^\s*[-*]\s+/, ''))}</li>`).join('')}</ul>`);
+      const items = lines.map((l) => l.replace(/^\s*[-*]\s+/, ''));
+      const parsed = items.map(splitLabel);
+      if (parsed.every(Boolean)) {
+        out.push(
+          `<ul class="cards">${parsed
+            .map(
+              (it, i) =>
+                `<li class="card" data-reveal><span class="card-num">${pad2(i + 1)}</span><h3 class="card-title">${inline(it.label)}</h3>${it.rest ? `<p>${inline(it.rest)}</p>` : ''}</li>`,
+            )
+            .join('')}</ul>`,
+        );
+      } else {
+        out.push(`<ul class="bullets">${items.map((t) => `<li data-reveal>${inline(t)}</li>`).join('')}</ul>`);
+      }
     } else {
-      out.push(`<p>${inline(lines.join(' '))}</p>`);
+      const text = lines.join(' ');
+      const f = splitLabel(text);
+      if (f) {
+        out.push(`<div class="fact" data-reveal><span class="fact-label">${inline(f.label)}</span><p>${inline(f.rest)}</p></div>`);
+      } else {
+        out.push(`<p${leadPending ? ' class="lead-p"' : ''} data-reveal>${inline(text)}</p>`);
+        leadPending = false;
+      }
     }
   }
   return out.join('\n');
@@ -98,7 +132,7 @@ function renderSections(md) {
     }
   }
   if (current.title !== null || current.lines.join('').trim()) sections.push(current);
-  return sections.map((s) => ({ title: s.title, html: renderBlocks(s.lines.join('\n')) }));
+  return sections.map((s, i) => ({ title: s.title, html: renderBlocks(s.lines.join('\n'), i === 0) }));
 }
 
 /* ---------- shared pieces ---------- */
@@ -386,8 +420,10 @@ function projectPage(p) {
   }
 
   // Rhythm: one wide frame, then two side by side, then wide again, and so on.
+  const zoomIcon =
+    '<span class="frame-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18"><path d="M14 4h6v6M10 20H4v-6M20 4l-7 7M4 20l7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>';
   const fig = (src, i, half) =>
-    `<figure class="frame${half ? ' frame--half' : ''}" data-reveal="clip"><img src="${esc(useImage(src))}" alt="${esc(p.title)} — project image ${i + 1}" width="1388" height="615"${i ? ' loading="lazy"' : ''}></figure>`;
+    `<figure class="frame${half ? ' frame--half' : ''}" data-reveal="clip">${zoomIcon}<img src="${esc(useImage(src))}" alt="${esc(p.title)} — project image ${i + 1}" width="1388" height="615"${i ? ' loading="lazy"' : ''}></figure>`;
   const galleryParts = [];
   for (let i = 0, pair = false; i < p.images.length; pair = !pair) {
     if (pair && i + 1 < p.images.length) {
@@ -442,8 +478,8 @@ ${p.previewUrl ? button(p.previewUrl, site.project.previewButton, { external: tr
 ${gallery}
 ${sections
   .map(
-    (s) =>
-      `<section class="case" data-reveal>${s.title ? `<h2 class="h2 h2--section">${esc(s.title)}</h2>` : ''}<div class="prose">${s.html}</div></section>`,
+    (s, i) =>
+      `<section class="case"><div class="case-head" data-reveal><span class="case-idx">${pad2(i + 1)}</span>${s.title ? `<h2 class="h2 h2--section">${esc(s.title)}</h2>` : ''}</div>${s.html ? `<div class="case-body prose">${s.html}</div>` : ''}</section>`,
   )
   .join('\n')}
 ${nextHtml}
