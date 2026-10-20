@@ -1331,8 +1331,27 @@ html.lb-lock {
     gap: 24px;
   }
 
+  /* heading stays pinned under the header while the section text scrolls past it */
   .case-head {
-    position: static;
+    position: sticky;
+    top: 74px;
+    z-index: 5;
+    flex-direction: row;
+    align-items: baseline;
+    gap: 14px;
+    margin: 0 calc(var(--gutter) * -1);
+    padding: 12px var(--gutter);
+    background: var(--bg);
+  }
+
+  .case-head .h2.h2--section {
+    font-size: 17px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .case-head {
+    border-bottom: 1px solid var(--line);
   }
 }
 
