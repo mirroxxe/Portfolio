@@ -1,6 +1,6 @@
 ---
 title: Balenciaga
-order: 5
+order: 6
 category: UI / UX Design
 type: E-Commerce Website
 year: 2025
